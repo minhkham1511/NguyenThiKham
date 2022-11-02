@@ -1,0 +1,26 @@
+@{
+    ViewData["Title"]="Upload";
+}
+<h1> Import data from Excel file</h1>
+<h4> @ViewBag.Dulieu</h4>
+<hr/>
+<div class= "row">
+    <div class ="col-md-4">
+        <from asp-action ="Upload" enctype="multipart/from-data">
+        <div>
+            <label>Upload file excel</label>
+            <input name ="file" type="file" class="form-control">
+            <br />
+            </div>
+            <div class="form-group">
+                <input type = "submit" value="Upload" class ="btn btn-primary"/>
+                <a asp-action="Index" class="btn btn-info">Back to list</a>
+            </div>
+    
+        </div>
+        </from>
+    </div>
+</div>
+@section Scripts{
+  @__o{await Html.RenderPartialAsync ("ValidationScriptsPartial");}
+  }

@@ -6,12 +6,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NguyenThiKhambth2.Models;
+using NguyenThiKhambth2.Models.Process;
+using NguyenThiKhambth2.Models;
+
 
 namespace NguyenThiKhambth2.Controllers
 {
     public class EmployeeController : Controller
     {
         private readonly ApplicationDbcontext _context;
+        private ExcelProcess _ExcelProcess = new ExcelProcess();
 
         public EmployeeController(ApplicationDbcontext context)
         {
@@ -31,14 +35,14 @@ namespace NguyenThiKhambth2.Controllers
         {
             if (id == null || _context.Employee == null)
             {
-                return NotFound();
+                return View ("NotFound");
             }
 
             var employee = await _context.Employee
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (employee == null)
             {
-                return NotFound();
+                return View ("NotFound");
             }
 
             return View(employee);
@@ -158,5 +162,51 @@ namespace NguyenThiKhambth2.Controllers
         {
           return (_context.Employee?.Any(e => e.Id == id)).GetValueOrDefault();
         }
+        public async Task<IActionResult> Upload()
+    {
+        return View();
+    }
+    [HttpPost]
+     [ValidateAntiForgeryToken]
+     public async Task<IActionResult> Upload(IFormFile file)
+     {
+        if (file != null)
+        {
+            string fileExtension = Path.GetExtension(file.FileName);
+            if (fileExtension !=".xls"&& fileExtension !=".xlsx")
+            {
+                ModelState.AddModelError("","Please choose excel file to upload!");
+            }
+            else 
+            {
+                //rename file when upload to server
+                var FileName = DateTime.Now.ToShortTimeString() + fileExtension;
+                var filePath = Path.Combine(Directory.GetCurrentDirectory() + "/Upload/Excels", FileName);
+                var fileLocation = new FileInfo(filePath).ToString();
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    //save file to server
+                    await file.CopyToAsync(stream);
+                  var dt = _ExcelProcess.ExcelToDataTable(fileLocation);
+                        for (int i=0; i< dt.Rows.Count; i++)
+                        {
+                            var emp = new Employee();
+                            emp.Id = Convert.ToInt32(dt.Rows[i][0].ToString ());
+                            emp.Title = dt.Rows[i][1].ToString ();
+                            emp.ReleaseDate = Convert.ToDateTime(dt.Rows[i][0].ToString());
+                            emp.Genre = dt.Rows[i][1].ToString ();
+                            emp.Price = Convert.ToDecimal(dt.Rows[i][1].ToString ());
+
+                            _context.Employee.Add(emp);
+                        }
+                        await _context.SaveChangesAsync();
+                        return RedirectToAction(nameof(Index));  
+                }
+            }
+        }
+        return View();
+     }
+
     }
 }
+
