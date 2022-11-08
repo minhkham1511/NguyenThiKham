@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NguyenThiKhambth2.Models;
 using NguyenThiKhambth2.Models.Process;
-using NguyenThiKhambth2.Models;
+
 
 
 namespace NguyenThiKhambth2.Controllers

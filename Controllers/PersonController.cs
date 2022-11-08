@@ -6,12 +6,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NguyenThiKhambth2.Models;
+using NguyenThiKhambth2.Models.Process;
 
 namespace NguyenThiKhambth2.Controllers
 {
     public class PersonController : Controller
     {
         private readonly ApplicationDbcontext _context;
+         private ExcelProcess _ExcelProcess = new ExcelProcess();
 
         public PersonController(ApplicationDbcontext context)
         {
@@ -158,5 +160,47 @@ namespace NguyenThiKhambth2.Controllers
         {
           return (_context.Person?.Any(e => e.PersonID == id)).GetValueOrDefault();
         }
+        public async Task<IActionResult> Upload()
+    {
+        return View();
+    }
+    [HttpPost]
+     [ValidateAntiForgeryToken]
+     public async Task<IActionResult> Upload(IFormFile file)
+     {
+        if (file != null)
+        {
+            string fileExtension = Path.GetExtension(file.FileName);
+            if (fileExtension !=".xls"&& fileExtension !=".xlsx")
+            {
+                ModelState.AddModelError("","Please choose excel file to upload!");
+            }
+            else 
+            {
+                //rename file when upload to server
+                var FileName = DateTime.Now.ToShortTimeString() + fileExtension;
+                var filePath = Path.Combine(Directory.GetCurrentDirectory() + "/Upload/Excels", FileName);
+                var fileLocation = new FileInfo(filePath).ToString();
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    //save file to server
+                    await file.CopyToAsync(stream);
+                  var dt = _ExcelProcess.ExcelToDataTable(fileLocation);
+                        for (int i=0; i< dt.Rows.Count; i++)
+                        {
+                            var Per = new Person();
+                            Per.PersonID = Convert.ToInt32(dt.Rows[i][0].ToString ());
+                            Per.PersonName = dt.Rows[i][1].ToString ();
+
+                            _context.Person.Add(Per);
+                        }
+                        await _context.SaveChangesAsync();
+                        return RedirectToAction(nameof(Index));  
+                }
+            }
+        }
+        return View();
+     }
+
     }
 }
