@@ -51,15 +51,25 @@ namespace NguyenThiKhambth2.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("ReleaseDate")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Title")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.ToTable("Employee");
+                });
+
+            modelBuilder.Entity("NguyenThiKhambth2.Models.Facult", b =>
+                {
+                    b.Property<string>("FacultID")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("FacultName")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("FacultID");
+
+                    b.ToTable("Facult");
                 });
 
             modelBuilder.Entity("NguyenThiKhambth2.Models.Person", b =>
@@ -82,13 +92,27 @@ namespace NguyenThiKhambth2.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("FacultID")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("ID");
 
+                    b.HasIndex("FacultID");
+
                     b.ToTable("Student");
+                });
+
+            modelBuilder.Entity("NguyenThiKhambth2.Models.Student", b =>
+                {
+                    b.HasOne("NguyenThiKhambth2.Models.Facult", "Facult")
+                        .WithMany()
+                        .HasForeignKey("FacultID");
+
+                    b.Navigation("Facult");
                 });
 #pragma warning restore 612, 618
         }

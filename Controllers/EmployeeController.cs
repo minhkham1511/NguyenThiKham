@@ -181,7 +181,7 @@ namespace NguyenThiKhambth2.Controllers
             {
                 //rename file when upload to server
                 var FileName = DateTime.Now.ToShortTimeString() + fileExtension;
-                var filePath = Path.Combine(Directory.GetCurrentDirectory() + "/Upload/Excels", FileName);
+                var filePath = Path.Combine(Directory.GetCurrentDirectory() + "/Uploads/Excels", FileName);
                 var fileLocation = new FileInfo(filePath).ToString();
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
@@ -193,7 +193,6 @@ namespace NguyenThiKhambth2.Controllers
                             var emp = new Employee();
                             emp.Id = Convert.ToInt32(dt.Rows[i][0].ToString ());
                             emp.Title = dt.Rows[i][1].ToString ();
-                            emp.ReleaseDate = Convert.ToDateTime(dt.Rows[i][0].ToString());
                             emp.Genre = dt.Rows[i][1].ToString ();
                             emp.Price = Convert.ToDecimal(dt.Rows[i][1].ToString ());
 

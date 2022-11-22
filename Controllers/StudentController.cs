@@ -22,6 +22,7 @@ namespace NguyenThiKhambth2.Controllers
         // GET: Student
         public async Task<IActionResult> Index()
         {
+            var id = _context.Student;
               return _context.Student != null ? 
                           View(await _context.Student.ToListAsync()) :
                           Problem("Entity set 'ApplicationDbcontext.Student'  is null.");
@@ -46,17 +47,18 @@ namespace NguyenThiKhambth2.Controllers
         }
 
         // GET: Student/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
+        // public IActionResult Create()
+        // {
+        //     ViewData["FacultyID"]= new SelectList(_context.Facult, "FacultyID","FacultyID");
+        //     return View();
+        // }
 
         // POST: Student/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Name")] Student student)
+        public async Task<IActionResult> Create([Bind("ID,Name,FacultyID")] Student student)
         {
             if (ModelState.IsValid)
             {
@@ -64,7 +66,8 @@ namespace NguyenThiKhambth2.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(student);
+            // ViewData["FacultyID"] = new SelectList(_context.Facult,"FacultyID", student.FacultyID);
+             return View(student);
         }
 
         // GET: Student/Edit/5
@@ -75,13 +78,16 @@ namespace NguyenThiKhambth2.Controllers
                 return View ("NotFound");
             }
 
+
             var student = await _context.Student.FindAsync(id);
             if (student == null)
+
             {
                 return View ("NotFound");
             }
             return View(student);
         }
+        //
 
         // POST: Student/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -178,7 +184,7 @@ namespace NguyenThiKhambth2.Controllers
             {
                 //rename file when upload to server
                 var FileName = DateTime.Now.ToShortTimeString() + fileExtension;
-                var filePath = Path.Combine(Directory.GetCurrentDirectory() + "/Upload/Excels", FileName);
+                var filePath = Path.Combine(Directory.GetCurrentDirectory() + "/Uploads/Excels", FileName);
                 var fileLocation = new FileInfo(filePath).ToString();
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
@@ -187,11 +193,11 @@ namespace NguyenThiKhambth2.Controllers
                   var dt = _ExcelProcess.ExcelToDataTable(fileLocation);
                         for (int i=0; i< dt.Rows.Count; i++)
                         {
-                            var Per = new Person();
-                            Per.PersonID = Convert.ToInt32(dt.Rows[i][0].ToString ());
-                            Per.PersonName = dt.Rows[i][1].ToString ();
+                            var Std = new Student();
+                            Std.ID = Convert.ToInt32(dt.Rows[i][0].ToString ());
+                            Std.Name = dt.Rows[i][1].ToString ();
 
-                            _context.Person.Add(Per);
+                            _context.Student.Add(Std);
                         }
                         await _context.SaveChangesAsync();
                         return RedirectToAction(nameof(Index));  
@@ -199,6 +205,7 @@ namespace NguyenThiKhambth2.Controllers
             }
         }
         return View();
+
      }
 
     }
